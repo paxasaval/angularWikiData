@@ -1,15 +1,36 @@
 <nz-card class="card" [nzActions]="[linkTemplate]">
   <nz-card-meta
-  [nzTitle]="human.humanosLabel.value"
-  [nzDescription]="profesionTemplate"
-  [nzAvatar]="avatarTemplate"
+    [nzTitle]="human.humanosLabel.value"
+    [nzDescription]="profesionTemplate"
+    [nzAvatar]="avatarTemplate"
   >
   </nz-card-meta>
+  <div class="content">
+    <div class="line" *ngIf="dateBirth"  >
+      <span> Nacio:</span>
+      <p>
+      {{ dateBirth.value | date : "fullDate" }}
+
+      </p>
+    </div>
+    <div class="line" *ngIf="!flagDeath && dateDeath">
+      <span>Fallece:</span>
+      <p>
+        {{ dateDeath.value | date : "fullDate" }}
+      </p>
+    </div>
+  </div>
   <ng-template #profesionTemplate>
-    <div class="line">
-      <nz-tag class="tag" *ngFor="let profesion of arrayProfesion" [nzColor]="'blue'">
-        <a [href]="profesion.profesion.value"  target="_blank">{{profesion.profesionLabel.value}}</a>
-        </nz-tag>
+    <div>
+      <nz-tag
+        class="tag"
+        *ngFor="let profesion of arrayProfesion"
+        [nzColor]="'blue'"
+      >
+        <a [href]="profesion.profesion.value" target="_blank">{{
+          profesion.profesionLabel.value
+        }}</a>
+      </nz-tag>
     </div>
   </ng-template>
   <ng-template #linkTemplate>

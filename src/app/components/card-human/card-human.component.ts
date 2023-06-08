@@ -21,8 +21,11 @@ export class CardHumanComponent implements OnInit,OnChanges {
   lastName!:ItemLabel
   subscribeImage!: Subscription
   image!:Item|null
-
-
+  subscribeDate!:Subscription
+  dateBirth!:ItemLabel|Item
+  subscribeDateDeath!:Subscription
+  dateDeath!:ItemLabel|Item
+  flagDeath=false
   constructor(
     private http: HttpClient
 
@@ -64,6 +67,30 @@ export class CardHumanComponent implements OnInit,OnChanges {
     const headers = { 'Accept': 'application/sparql-results+json' }
     return this.http.get<WikiData>(fullUrl,{headers:headers})
   }
+  getDateBirth(){
+    const sparqlQuery = `
+          SELECT ?date ?dateLabel
+          WHERE
+          {
+            <${this.human.humanos.value}> wdt:P569 ?date.
+             SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],es". }
+          }limit 100`
+    const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
+    const headers = { 'Accept': 'application/sparql-results+json' }
+    return this.http.get<WikiData>(fullUrl,{headers:headers})
+  }
+  getDateDeath(){
+    const sparqlQuery = `
+          SELECT ?date ?dateLabel
+          WHERE
+          {
+            <${this.human.humanos.value}> wdt:P570 ?date.
+             SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],es". }
+          }limit 100`
+    const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
+    const headers = { 'Accept': 'application/sparql-results+json' }
+    return this.http.get<WikiData>(fullUrl,{headers:headers})
+  }
 
   getSparQl() {
     const sparqlQuery = `
@@ -82,20 +109,24 @@ export class CardHumanComponent implements OnInit,OnChanges {
       if(this.subscribe){
         this.subscribe.unsubscribe()
       }
-      if(this.subscribeName){
-        this.subscribeName.unsubscribe()
-      }
-      if(this.subscribeLastName){
-        this.subscribeLastName.unsubscribe()
-      }
       if(this.subscribeImage){
         this.subscribeName.unsubscribe()
       }
-      this.subscribeName=this.getName().subscribe(res=>{
-        this.name=res.results.bindings[0] as ItemLabel
+      if(this.subscribeDate){
+        this.subscribeDate.unsubscribe()
+      }
+      if(this.subscribeDateDeath){
+        this.subscribeDateDeath.unsubscribe()
+      }
+      this.subscribeDate=this.getDateBirth().subscribe(res=>{
+        this.dateBirth=res.results.bindings[0].date
       })
-      this.subscribeLastName=this.getLastName().subscribe(res=>{
-        this.lastName=res.results.bindings[0] as ItemLabel
+      this.subscribeDateDeath=this.getDateDeath().subscribe(res=>{
+        if(res.results.bindings.length>0){
+          this.dateDeath=res.results.bindings[0].date
+        }else{
+          this.flagDeath=true
+        }
       })
       this.subscribeImage=this.getImage().subscribe(res=>{
         if(res.results.bindings.length>0){
