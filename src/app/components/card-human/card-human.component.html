@@ -1,0 +1,23 @@
+<nz-card [nzActions]="[linkTemplate]">
+  <nz-card-meta
+  [nzTitle]="human.humanosLabel.value"
+  [nzDescription]="profesionTemplate"
+  [nzAvatar]="avatarTemplate"
+  >
+  </nz-card-meta>
+  <ng-template #profesionTemplate>
+    <div class="line">
+      <a *ngFor="let profesion of arrayProfesion" [href]="profesion.profesion.value"  target="_blank">{{profesion.profesionLabel.value}}</a>
+    </div>
+  </ng-template>
+  <ng-template #linkTemplate>
+    <div class="action">
+      <a [href]="human.humanos.value" target="_blank">
+        <span nz-icon nzType="link" nzTheme="outline"></span>
+      </a>
+    </div>
+  </ng-template>
+  <ng-template #avatarTemplate>
+    <nz-avatar *ngIf="image" [nzSrc]="image.value"></nz-avatar>
+  </ng-template>
+</nz-card>
