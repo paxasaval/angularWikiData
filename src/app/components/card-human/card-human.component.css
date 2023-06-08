@@ -1,4 +1,12 @@
-  .line{
-    display: flex;
-    gap: 0.5em;
-  }
+.card .ul{
+  background-color: aqua;
+
+}
+.icon{
+  color: #2d56cf;
+  font-size: 2em;
+  font-weight: 900;
+}
+.ant-card-actions{
+  background-color: aqua;
+}

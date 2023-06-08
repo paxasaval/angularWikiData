@@ -27,7 +27,7 @@ export class AppComponent {
           {
             ?humanos wdt:P27 ${this.country.uri}.
              SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],es". }
-          }limit 3`
+          }limit 100`
     const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
     const headers = { 'Accept': 'application/sparql-results+json' }
     console.log(sparqlQuery)

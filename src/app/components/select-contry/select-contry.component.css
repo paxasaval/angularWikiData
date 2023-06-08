@@ -1,3 +1,12 @@
+.container{
+  padding-left: 2em;
+  display: flex;
+  gap: 1em;
+}
 nz-select {
   width: 200px;
+}
+.label{
+  font-size: 1.5em;
+  color: #fff;
 }

@@ -1,8 +1,28 @@
-<h1>Personajes Ilustres WikiData</h1>
+<div class="area" >
+  <ul class="circles">
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+  </ul>
+</div>
+<main>
+  <h1>Personajes Ilustres WikiData</h1>
+  <span class="hook">A continuacion debe selecionar un pais para visualizar sus personajes ilustres asi como sus ocupaciones</span>
 <app-select-contry (selectCountry)="handleCountry($event)"></app-select-contry>
-<app-select-ocupation></app-select-ocupation>
+<!-- <app-select-ocupation></app-select-ocupation> -->
 <div *ngIf="arrayData.length>0" class="container">
 <h2>Resultados:</h2>
-  <app-card-human *ngFor="let human of arrayData" [human]="human"></app-card-human>
-
+<div class="card-container">
+  <app-card-human class="card" *ngFor="let human of arrayData" [human]="human"></app-card-human>
 </div>
+</div>
+</main>
+
+
