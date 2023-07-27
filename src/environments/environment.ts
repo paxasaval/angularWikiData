@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  endpointUrl: 'https://query.wikidata.org/sparql',
+  endpointUrl2: 'http://localhost:7200/repositories/domains'
 };
 
 /*

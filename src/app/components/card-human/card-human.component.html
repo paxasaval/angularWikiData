@@ -1,8 +1,6 @@
 <nz-card class="card" [nzActions]="[linkTemplate]">
-  <nz-card-meta
-    [nzTitle]="human.humanosLabel.value"
-    [nzDescription]="profesionTemplate"
-    [nzAvatar]="avatarTemplate"
+  <nz-card-meta *ngIf="title"
+    [nzTitle]="title.data.value"
   >
   </nz-card-meta>
   <div class="content">
@@ -34,11 +32,11 @@
     </div>
   </ng-template>
   <ng-template #linkTemplate>
-    <div class="action">
+<!--     <div class="action">
       <a [href]="human.humanos.value" target="_blank">
         <span class="icon" nz-icon nzType="link" nzTheme="outline"></span>
       </a>
-    </div>
+    </div> -->
   </ng-template>
   <ng-template #avatarTemplate>
     <nz-avatar *ngIf="image" [nzSize]="72" [nzSrc]="image.value"></nz-avatar>

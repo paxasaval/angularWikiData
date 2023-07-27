@@ -19,7 +19,7 @@ SELECT ?item ?itemLabel
 WHERE
 {
   ?item wdt:P31 wd:Q6256.
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". } # Helps get the label in your language, if not, then en language
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],es". }
 }`
   constructor(
     private http: HttpClient

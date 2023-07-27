@@ -13,14 +13,14 @@
   </ul>
 </div>
 <main>
-  <h1>Personajes Ilustres WikiData</h1>
+  <h1>Documentos mapeados en GraphDB</h1>
   <span class="hook">A continuacion debe selecionar un pais para visualizar sus personajes ilustres asi como sus ocupaciones</span>
-<app-select-contry (selectCountry)="handleCountry($event)"></app-select-contry>
+<!-- <app-select-contry (selectCountry)="handleCountry($event)"></app-select-contry> -->
 <!-- <app-select-ocupation></app-select-ocupation> -->
-<div *ngIf="arrayData.length>0" class="container">
+<div *ngIf="arrayDOCS.length>0" class="container">
 <h2>Resultados:</h2>
 <div class="card-container">
-  <app-card-human class="card" *ngFor="let human of arrayData" [human]="human"></app-card-human>
+  <app-card-human class="card" *ngFor="let doc of arrayDOCS" [data]="doc"></app-card-human>
 </div>
 </div>
 </main>

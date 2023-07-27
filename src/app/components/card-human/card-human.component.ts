@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+  import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { HumanCelebreData, HumanData, HumanDetailData, Item, ItemLabel, WikiData } from 'src/app/models/data';
+import { GraphData, HumanCelebreData, HumanData, HumanDetailData, Item, ItemLabel, WikiData } from 'src/app/models/data';
 import { Subscription, of } from 'rxjs'
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-card-human',
@@ -11,8 +12,11 @@ import { Subscription, of } from 'rxjs'
 export class CardHumanComponent implements OnInit,OnChanges {
 
   @Input() human!: HumanData
+  @Input() data!: GraphData
+
   humanDetail!:HumanDetailData
-  endpointUrl = 'https://query.wikidata.org/sparql';
+  endpointUrl = environment.endpointUrl2;
+
   subscribe!: Subscription
   arrayProfesion:HumanCelebreData[]=[]
   subscribeName!: Subscription
@@ -25,13 +29,17 @@ export class CardHumanComponent implements OnInit,OnChanges {
   dateBirth!:ItemLabel|Item
   subscribeDateDeath!:Subscription
   dateDeath!:ItemLabel|Item
+  //
+  subscribeTitle!:Subscription
+  title!:GraphData
+
   flagDeath=false
   constructor(
     private http: HttpClient
 
   ) { }
 
-  getName(){
+/*   getName(){
     const sparqlQuery = `
           SELECT ?humanos ?humanosLabel ?nameLabel ?lastNameLabel ?image
           WHERE
@@ -62,7 +70,7 @@ export class CardHumanComponent implements OnInit,OnChanges {
           {
             <${this.human.humanos.value}> wdt:P18 ?image.
              SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],es". }
-          }limit 100`
+          }`
     const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
     const headers = { 'Accept': 'application/sparql-results+json' }
     return this.http.get<WikiData>(fullUrl,{headers:headers})
@@ -103,7 +111,23 @@ export class CardHumanComponent implements OnInit,OnChanges {
     const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
     const headers = { 'Accept': 'application/sparql-results+json' }
     return this.http.get<WikiData>(fullUrl,{headers:headers})
+  } */
+  //Fin seccion human data
+
+  //
+  getTitle(){
+    const sparqlQuery = `
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    select ?data where {
+      <${this.data.data.value}> dcterms:title ?data .
+    } limit 100 `
+    const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
+    const headers = { 'Accept': 'application/sparql-results+json' }
+    return this.http.get<WikiData>(fullUrl,{headers:headers})
   }
+  //Fin seccion data graphDB
+
+
 
   ngOnChanges(changes: SimpleChanges): void {
       if(this.subscribe){
@@ -118,7 +142,10 @@ export class CardHumanComponent implements OnInit,OnChanges {
       if(this.subscribeDateDeath){
         this.subscribeDateDeath.unsubscribe()
       }
-      this.subscribeDate=this.getDateBirth().subscribe(res=>{
+      if(this.subscribeTitle){
+        this.subscribeTitle.unsubscribe()
+      }
+/*       this.subscribeDate=this.getDateBirth().subscribe(res=>{
         this.dateBirth=res.results.bindings[0].date
       })
       this.subscribeDateDeath=this.getDateDeath().subscribe(res=>{
@@ -138,6 +165,9 @@ export class CardHumanComponent implements OnInit,OnChanges {
       })
       this.subscribe=this.getSparQl().subscribe(res=>{
         this.arrayProfesion = res.results.bindings as HumanCelebreData[]
+      }) */
+      this.subscribeTitle = this.getTitle().subscribe(res=>{
+        this.title = res.results.bindings[0] as GraphData
       })
   }
 
