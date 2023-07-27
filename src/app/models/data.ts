@@ -34,3 +34,7 @@ export interface WikiData{
   head:{vars:string[]},
   results:{bindings:any[]}
 }
+
+export interface GraphData{
+  data:{type:string,value:string}
+}
