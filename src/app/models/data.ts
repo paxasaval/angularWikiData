@@ -38,3 +38,6 @@ export interface WikiData{
 export interface GraphData{
   data:{type:string,value:string}
 }
+export interface GraphData2{
+  type:string,value:string
+}

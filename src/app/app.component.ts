@@ -15,7 +15,6 @@ export class AppComponent implements OnInit {
   endpointUrl2 = 'http://localhost:7200/repositories/domains';
 
   arrayDOCS:GraphData[] = []
-
   subscribe!:Subscription
 
   arrayData:HumanData[]=[]

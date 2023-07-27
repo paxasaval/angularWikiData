@@ -1,6 +1,7 @@
 <nz-card class="card" [nzActions]="[linkTemplate]">
   <nz-card-meta *ngIf="title"
     [nzTitle]="title.data.value"
+    [nzDescription]="profesionTemplate"
   >
   </nz-card-meta>
   <div class="content">
@@ -22,12 +23,11 @@
     <div>
       <nz-tag
         class="tag"
-        *ngFor="let profesion of arrayProfesion"
+        *ngFor="let keyword of keywords"
         [nzColor]="'blue'"
       >
-        <a [href]="profesion.profesion.value" target="_blank">{{
-          profesion.profesionLabel.value
-        }}</a>
+        <a *ngIf="keyword.data" target="_blank">{{
+          keyword.data.value.substring(41).replace('_',' ')       }}</a>
       </nz-tag>
     </div>
   </ng-template>
