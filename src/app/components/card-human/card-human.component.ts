@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { GraphData, HumanCelebreData, HumanData, HumanDetailData, Item, ItemLabel, WikiData } from 'src/app/models/data';
-import { Subscription, of } from 'rxjs'
+import { Subscription, concatMap, from, map, mergeMap, of, toArray } from 'rxjs'
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -16,6 +16,7 @@ export class CardHumanComponent implements OnInit, OnChanges {
 
   humanDetail!: HumanDetailData
   endpointUrl = environment.endpointUrl2;
+  endpointUrl2 = environment.endpointUrl
 
   subscribe!: Subscription
   arrayProfesion: HumanCelebreData[] = []
@@ -34,8 +35,18 @@ export class CardHumanComponent implements OnInit, OnChanges {
   title!: GraphData
   subscribeKeyword!: Subscription
   keywords!: GraphData[]
+  subscribeDOI!:Subscription
+  doi!:GraphData
+  subsscriptionAuthor!:Subscription
+  authors!:GraphData[]
+  subscriptionLink!:Subscription
+  link!:GraphData
+
+  arrayTag:Map<string,string>=new Map()
+  tags!:[string,string][]
 
   flagDeath = false
+  flagTag=false
   constructor(
     private http: HttpClient
 
@@ -129,15 +140,77 @@ export class CardHumanComponent implements OnInit, OnChanges {
   }
   getKeywords() {
     const sparqlQuery = `
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX bibo: <http://purl.org/ontology/bibo/>
+    PREFIX dc: <http://purl.org/dc/elements/1.1>
     PREFIX dcterms: <http://purl.org/dc/terms/>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
     select ?data where {
-      <${this.data.data.value}> dcterms:subject ?data .
+	<${this.data.data.value}> dcterms:subject ?keyword .
+    ?keyword skos:prefLabel ?data
+} limit 100`
+    const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
+    const headers = { 'Accept': 'application/sparql-results+json' }
+    //console.log(sparqlQuery)
+    return this.http.get<WikiData>(fullUrl, { headers: headers })
+  }
+
+  getExtraInfo(word:string){
+    const sparqlQuery = `
+    SELECT * WHERE {
+      ?data rdfs:label '${word}'@en.
+      OPTIONAL {
+        ?data wdt:P373 '${word}'.
+        ?data wdt:P3417 '${word}'.
+        ?data wdt:P9084 '${word}'
+      }
+    }`
+      const fullUrl = this.endpointUrl2 + '?query=' + encodeURIComponent(sparqlQuery)
+      const headers = { 'Accept': 'application/sparql-results+json' }
+      //console.log(sparqlQuery)
+      return this.http.get<WikiData>(fullUrl,{headers:headers})
+  }
+
+  getDOI(){
+    const sparqlQuery = `
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    PREFIX bibo: <http://purl.org/ontology/bibo/>
+    select ?data where {
+      <${this.data.data.value}> bibo:doi ?data.
     } limit 100 `
     const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
     const headers = { 'Accept': 'application/sparql-results+json' }
-    console.log(sparqlQuery)
+      //console.log(sparqlQuery)
     return this.http.get<WikiData>(fullUrl, { headers: headers })
   }
+  getAuthors(){
+    const sparqlQuery = `PREFIX dcterms: <http://purl.org/dc/terms/>
+    PREFIX bibo: <http://purl.org/ontology/bibo/>
+    PREFIX vivo: <http://vivoweb.org/ontology/core#>
+    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    select ?data where {
+          <${this.data.data.value}> vivo:relatedBy ?authorship.
+        ?authorship vivo:relates ?author_uri.
+        ?author_uri foaf:name ?data
+        } limit 100 `
+    const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
+    const headers = { 'Accept': 'application/sparql-results+json' }
+      //console.log(sparqlQuery)
+    return this.http.get<WikiData>(fullUrl, { headers: headers })
+  }
+
+  getLink(){
+    const sparqlQuery = `
+    PREFIX rss: <http://purl.org/rss/1.0/>
+    select ?data where {
+          <${this.data.data.value}> rss:link ?data
+        } limit 100   `
+    const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
+    const headers = { 'Accept': 'application/sparql-results+json' }
+      //console.log(sparqlQuery)
+    return this.http.get<WikiData>(fullUrl, { headers: headers })
+  }
+
   //Fin seccion data graphDB
 
 
@@ -161,6 +234,13 @@ export class CardHumanComponent implements OnInit, OnChanges {
     if (this.subscribeKeyword) {
       this.subscribeKeyword.unsubscribe()
     }
+    if (this.subscribeDOI) {
+      this.subscribeDOI.unsubscribe()
+    }
+    if (this.subsscriptionAuthor) {
+      this.subsscriptionAuthor.unsubscribe()
+    }
+
     /*       this.subscribeDate=this.getDateBirth().subscribe(res=>{
             this.dateBirth=res.results.bindings[0].date
           })
@@ -185,10 +265,44 @@ export class CardHumanComponent implements OnInit, OnChanges {
     this.subscribeTitle = this.getTitle().subscribe(res => {
       this.title = res.results.bindings[0] as GraphData
     })
-    this.subscribeKeyword = this.getKeywords().subscribe(res=>{
-      this.keywords = res.results.bindings as GraphData[]
-      console.log(this.keywords)
+    this.subscribeKeyword = this.getKeywords().pipe(
+      concatMap(keywords=>{
+        const kewordsBD = keywords.results.bindings as GraphData[]
+        const words = kewordsBD.map(k=>{
+          return k.data.value
+        })
+        return from(words).pipe(
+          concatMap(word=>{
+            this.arrayTag.set(word,'#')
+            return this.getExtraInfo(word).pipe(
+              map(res=>{
+                const object = res.results.bindings[0]
+                //console.log(object)
+                const value = object?object.  data.value:''
+                this.arrayTag.set(word,value)
+                return this.arrayTag
+              })
+            )
+          })
+        )
+      })
+    ).subscribe(res=>{
+      this.tags=Array.from(res)
+      this.flagTag=true
+      //  console.log(this.tags)
+  })
+
+    this.subscribeDOI=this.getDOI().subscribe(res=>{
+      this.doi = res.results.bindings[0] as GraphData
+      //    console.log(res)
     })
+    this.subsscriptionAuthor=this.getAuthors().subscribe(res=>{
+      this.authors = res.results.bindings as GraphData[]
+    })
+    this.subscriptionLink=this.getLink().subscribe(res=>{
+      this.link = res.results.bindings[0] as GraphData
+    })
+
   }
 
   ngOnInit(): void {
