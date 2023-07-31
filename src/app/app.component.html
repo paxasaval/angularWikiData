@@ -13,13 +13,31 @@
   </ul>
 </div>
 <main>
-  <h1>Documentos mapeados en GraphDB</h1>
+  <h1> Articulos academicos Scopus-Chile 2023</h1>
+  <div class="cloud">
+    <h2>Categorias mas populares</h2>
+    <angular-tag-cloud *ngIf="flag"
+        [data]="data"
+        [width]="options.width"
+        [height]="options.height"
+        [overflow]="options.overflow">
+    </angular-tag-cloud>
+    <div class="load" *ngIf="!flag">
+      <nz-spin nzTip="Loading..." [nzSize]="'large'"></nz-spin>
+    </div>
+  </div>
+  <h2>Buscardor por categoria</h2>
   <!-- <span class="hook">A continuacion debe selecionar un pais para visualizar sus personajes ilustres asi como sus ocupaciones</span> -->
-<!-- <app-select-contry (selectCountry)="handleCountry($event)"></app-select-contry> -->
+<app-select-contry (selectCountry)="handleCountry($event)"></app-select-contry>
 <!-- <app-select-ocupation></app-select-ocupation> -->
 <div *ngIf="arrayDOCS.length>0" class="container">
 <h2>Resultados:</h2>
 <div class="card-container">
+  <div class="pagination">
+    <a *ngIf="prevPage>-1" (click)="handlePrevPage()">Anterior</a>
+    <a *ngIf="nextPage>0" (click)="handleNextPage()">Siguiente</a>
+
+  </div>
   <app-card-human class="card" *ngFor="let doc of arrayDOCS" [data]="doc"></app-card-human>
 </div>
 </div>

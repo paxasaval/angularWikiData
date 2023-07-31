@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { Data, DataClean } from 'src/app/models/data';
+import { Data, DataClean, DataURI } from 'src/app/models/data';
 import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-select-contry',
@@ -13,14 +14,14 @@ export class SelectContryComponent implements OnInit {
 
   arrayCountries:DataClean[]=[]
   @Output() selectCountry = new EventEmitter<DataClean>();
-  endpointUrl = 'https://query.wikidata.org/sparql';
+  endpointUrl = environment.endpointUrl2;
   sparqlQuery = `
-SELECT ?item ?itemLabel
-WHERE
-{
-  ?item wdt:P31 wd:Q6256.
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],es". }
-}`
+  PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  select ?data ?uri where {
+        ?uri rdf:type skos:Concept.
+      ?uri skos:prefLabel ?data
+  }`
   constructor(
     private http: HttpClient
   ) { }
@@ -37,15 +38,16 @@ WHERE
 
   ngOnInit(): void {
     this.query().subscribe((res:any)=>{
-      const data = res.results.bindings as Data[]
+      console.log(res)
+      const data = res.results.bindings as DataURI[]
       const arrayData = data.map(d=>{
-        const uri = '<'+d.item.value+'>'
-        const value = d.itemLabel.value
+        const uri = '<'+d.uri.value+'>'
+        const value = d.data.value
         const dClean:DataClean={uri,value}
         return dClean
       })
       this.arrayCountries=arrayData
-
+      console.log(this.arrayCountries)
     })
   }
 

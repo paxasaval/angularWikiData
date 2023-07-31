@@ -2,9 +2,20 @@
   <nz-card-meta *ngIf="title"
     [nzTitle]="title.data.value"
     [nzDescription]="profesionTemplate"
+
   >
   </nz-card-meta>
   <div class="content">
+    <div class="line" *ngIf="doi">
+      <span>DOI:</span>
+      <p>{{doi.data.value}}</p>
+    </div>
+    <div class="line" *ngIf="doi">
+      <span>Autores:</span>
+      <div *ngIf="authors">
+        <p *ngFor="let author of authors">{{author.data.value}}</p>
+      </div>
+    </div>
     <div class="line" *ngIf="dateBirth"  >
       <span> Nacio:</span>
       <p>
@@ -20,23 +31,24 @@
     </div>
   </div>
   <ng-template #profesionTemplate>
-    <div>
+    <div *ngIf="flagTag">
+      Categorias:
       <nz-tag
         class="tag"
-        *ngFor="let keyword of keywords"
-        [nzColor]="'blue'"
+        *ngFor="let tag of tags"
+        [nzColor]="tag[1]==''?'red':'blue'"
       >
-        <a *ngIf="keyword.data" target="_blank">{{
-          keyword.data.value.substring(41).replace('_',' ')       }}</a>
+        <a [href]="tag[1]" target="_blank">{{
+          tag[0]}}</a>
       </nz-tag>
     </div>
   </ng-template>
   <ng-template #linkTemplate>
-<!--     <div class="action">
-      <a [href]="human.humanos.value" target="_blank">
+     <div class="action" *ngIf="link">
+      <a [href]="link.data.value" target="_blank">
         <span class="icon" nz-icon nzType="link" nzTheme="outline"></span>
       </a>
-    </div> -->
+    </div>
   </ng-template>
   <ng-template #avatarTemplate>
     <nz-avatar *ngIf="image" [nzSize]="72" [nzSrc]="image.value"></nz-avatar>

@@ -1,7 +1,22 @@
 main{
   width: 100%;
+  height: 100%;
   position: absolute;
-  top: 10%;
+  top: 0%;
+  padding-top: 5vh;
+  overflow-y: scroll;
+}
+.cloud{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.load{
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 h1{
   text-align: center;
@@ -23,12 +38,12 @@ h2{
   color: #fff;
 }
 .container{
-  overflow-y: scroll;
   height: 75vh;
   margin-top: 1em;
   padding-bottom: 1em;
   width: 99vw;
 }
+
 .container::-webkit-scrollbar{
   width: 6px;
 }
@@ -43,6 +58,18 @@ h2{
   gap: 1em;
   justify-content: center;
   flex-wrap: wrap;
+}
+.pagination{
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap:1em;
+  font-size: 1.5em;
+  padding-right: 2.5em;
+}
+.pagination a{
+ color: #fff;
+
 }
 .card{
   display: block;

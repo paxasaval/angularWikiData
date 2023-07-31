@@ -19,7 +19,10 @@ export interface HumanData{
   humanos:Item,
   humanosLabel:ItemLabel,
 }
-
+export interface DataURI{
+  data:Item,
+  uri:Item,
+}
 export interface HumanDetailData{
   nameLabel?:ItemLabel,
   lastNameLabel?:ItemLabel,
