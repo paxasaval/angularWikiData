@@ -24,17 +24,14 @@ h1{
   font-size: 3em;
   font-weight: 800;
 }
-.hook{
-  color: #fff;
-  width: 98vw;
-  display: flex;
-  font-size: 1.5em;
-  justify-content: center;
-  padding-bottom: 1em;
-}
 h2{
   font-size: 2em;
   padding-left: 1em;
+  color: #fff;
+}
+h3{
+  font-size: medium;
+  text-align: center;
   color: #fff;
 }
 .container{
@@ -42,6 +39,16 @@ h2{
   margin-top: 1em;
   padding-bottom: 1em;
   width: 99vw;
+}
+.searchContainer{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1em;
+
+}
+.inputSearch{
+  width: 80%;
 }
 
 .container::-webkit-scrollbar{

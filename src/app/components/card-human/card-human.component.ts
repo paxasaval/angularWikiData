@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { GraphData, HumanCelebreData, HumanData, HumanDetailData, Item, ItemLabel, WikiData } from 'src/app/models/data';
+import { AuthorData, GraphData, HumanCelebreData, HumanData, HumanDetailData, Item, ItemLabel, WikiData } from 'src/app/models/data';
 import { Subscription, concatMap, from, map, mergeMap, of, toArray } from 'rxjs'
 import { environment } from 'src/environments/environment';
-
+import { catchError } from 'rxjs/operators';
 @Component({
   selector: 'app-card-human',
   templateUrl: './card-human.component.html',
@@ -35,18 +35,21 @@ export class CardHumanComponent implements OnInit, OnChanges {
   title!: GraphData
   subscribeKeyword!: Subscription
   keywords!: GraphData[]
-  subscribeDOI!:Subscription
-  doi!:GraphData
-  subsscriptionAuthor!:Subscription
-  authors!:GraphData[]
-  subscriptionLink!:Subscription
-  link!:GraphData
+  subscribeDOI!: Subscription
+  doi!: GraphData
+  subsscriptionAuthor!: Subscription
+  authors!: AuthorData[]
+  subscriptionLink!: Subscription
+  link!: GraphData
+  //
+  authorsToShow: AuthorData[] = []
+  showAllAuthors = false
 
-  arrayTag:Map<string,string>=new Map()
-  tags!:[string,string][]
+  arrayTag: Map<string, string> = new Map()
+  tags!: [string, string][]
 
   flagDeath = false
-  flagTag=false
+  flagTag = false
   constructor(
     private http: HttpClient
 
@@ -155,7 +158,7 @@ export class CardHumanComponent implements OnInit, OnChanges {
     return this.http.get<WikiData>(fullUrl, { headers: headers })
   }
 
-  getExtraInfo(word:string){
+  getExtraInfo(word: string) {
     const sparqlQuery = `
     SELECT * WHERE {
       ?data rdfs:label '${word}'@en.
@@ -165,13 +168,13 @@ export class CardHumanComponent implements OnInit, OnChanges {
         ?data wdt:P9084 '${word}'
       }
     }`
-      const fullUrl = this.endpointUrl2 + '?query=' + encodeURIComponent(sparqlQuery)
-      const headers = { 'Accept': 'application/sparql-results+json' }
-      //console.log(sparqlQuery)
-      return this.http.get<WikiData>(fullUrl,{headers:headers})
+    const fullUrl = this.endpointUrl2 + '?query=' + encodeURIComponent(sparqlQuery)
+    const headers = { 'Accept': 'application/sparql-results+json' }
+    //console.log(sparqlQuery)
+    return this.http.get<WikiData>(fullUrl, { headers: headers })
   }
 
-  getDOI(){
+  getDOI() {
     const sparqlQuery = `
     PREFIX dcterms: <http://purl.org/dc/terms/>
     PREFIX bibo: <http://purl.org/ontology/bibo/>
@@ -180,26 +183,40 @@ export class CardHumanComponent implements OnInit, OnChanges {
     } limit 100 `
     const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
     const headers = { 'Accept': 'application/sparql-results+json' }
-      //console.log(sparqlQuery)
+    //console.log(sparqlQuery)
     return this.http.get<WikiData>(fullUrl, { headers: headers })
   }
-  getAuthors(){
+  //Authors
+  getAuthors() {
     const sparqlQuery = `PREFIX dcterms: <http://purl.org/dc/terms/>
     PREFIX bibo: <http://purl.org/ontology/bibo/>
     PREFIX vivo: <http://vivoweb.org/ontology/core#>
     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-    select ?data where {
+    select ?data ?id where {
           <${this.data.data.value}> vivo:relatedBy ?authorship.
         ?authorship vivo:relates ?author_uri.
-        ?author_uri foaf:name ?data
+        ?author_uri foaf:name ?data.
+        ?author_uri dcterms:identifier ?id
         } limit 100 `
     const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
     const headers = { 'Accept': 'application/sparql-results+json' }
-      //console.log(sparqlQuery)
+    //console.log(sparqlQuery)
     return this.http.get<WikiData>(fullUrl, { headers: headers })
   }
 
-  getLink(){
+  toggleShowAll() {
+    if (!this.showAllAuthors) {
+      this.authorsToShow = this.authors
+      this.showAllAuthors = true
+    } else {
+      this.authorsToShow = this.authors.slice(0, 3)
+      this.showAllAuthors = false
+    }
+
+  }
+
+  //fin authors
+  getLink() {
     const sparqlQuery = `
     PREFIX rss: <http://purl.org/rss/1.0/>
     select ?data where {
@@ -207,7 +224,7 @@ export class CardHumanComponent implements OnInit, OnChanges {
         } limit 100   `
     const fullUrl = this.endpointUrl + '?query=' + encodeURIComponent(sparqlQuery)
     const headers = { 'Accept': 'application/sparql-results+json' }
-      //console.log(sparqlQuery)
+    //console.log(sparqlQuery)
     return this.http.get<WikiData>(fullUrl, { headers: headers })
   }
 
@@ -266,40 +283,48 @@ export class CardHumanComponent implements OnInit, OnChanges {
       this.title = res.results.bindings[0] as GraphData
     })
     this.subscribeKeyword = this.getKeywords().pipe(
-      concatMap(keywords=>{
+      concatMap(keywords => {
         const kewordsBD = keywords.results.bindings as GraphData[]
-        const words = kewordsBD.map(k=>{
+        const words = kewordsBD.map(k => {
           return k.data.value
         })
         return from(words).pipe(
-          concatMap(word=>{
-            this.arrayTag.set(word,'#')
+          concatMap(word => {
+            this.arrayTag.set(word, '#')
             return this.getExtraInfo(word).pipe(
-              map(res=>{
+              map(res => {
                 const object = res.results.bindings[0]
                 //console.log(object)
-                const value = object?object.  data.value:''
-                this.arrayTag.set(word,value)
+                const value = object ? object.data.value : ''
+                this.arrayTag.set(word, value)
                 return this.arrayTag
+              }),
+              catchError(error => {
+                console.error('Error al obtener palabras clave:', error);
+                return of(this.arrayTag);
               })
             )
           })
         )
       })
-    ).subscribe(res=>{
-      this.tags=Array.from(res)
-      this.flagTag=true
+    ).subscribe(res => {
+      this.tags = Array.from(res)
+      this.flagTag = true
       //  console.log(this.tags)
-  })
+    }, error => {
+      // Manejo del error en caso de que ocurra en la suscripción final.
+      console.error('Error en la suscripción:', error);
+    })
 
-    this.subscribeDOI=this.getDOI().subscribe(res=>{
+    this.subscribeDOI = this.getDOI().subscribe(res => {
       this.doi = res.results.bindings[0] as GraphData
       //    console.log(res)
     })
-    this.subsscriptionAuthor=this.getAuthors().subscribe(res=>{
-      this.authors = res.results.bindings as GraphData[]
+    this.subsscriptionAuthor = this.getAuthors().subscribe(res => {
+      this.authors = res.results.bindings as AuthorData[]
+      this.authorsToShow = this.authors.slice(0, 3)
     })
-    this.subscriptionLink=this.getLink().subscribe(res=>{
+    this.subscriptionLink = this.getLink().subscribe(res => {
       this.link = res.results.bindings[0] as GraphData
     })
 

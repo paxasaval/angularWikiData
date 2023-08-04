@@ -7,6 +7,7 @@ import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { TagCloudModule } from 'angular-tag-cloud-module';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzInputModule } from 'ng-zorro-antd/input';
 @NgModule({
   declarations: [],
   imports: [
@@ -17,7 +18,8 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
     NzAvatarModule,
     NzTagModule,
     TagCloudModule,
-    NzSpinModule
+    NzSpinModule,
+    NzInputModule
   ],
   exports:[
     NzSelectModule,
@@ -26,7 +28,8 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
     NzAvatarModule,
     NzTagModule,
     TagCloudModule,
-    NzSpinModule
+    NzSpinModule,
+    NzInputModule
 
   ]
 })

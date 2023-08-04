@@ -2,8 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Data, DataClean, GraphData, HumanData } from './models/data';
 import { Subscription, of } from 'rxjs'
-import { mergeMap } from 'rxjs/operators'
+import { debounceTime, mergeMap } from 'rxjs/operators'
 import { CloudData, CloudOptions } from 'angular-tag-cloud-module';
+import { FormControl } from '@angular/forms';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -14,6 +15,8 @@ export class AppComponent implements OnInit {
   country!: DataClean
   endpointUrl = 'https://query.wikidata.org/sparql';
   endpointUrl2 = 'http://localhost:7200/repositories/domains';
+
+  searchControl: FormControl = new FormControl('');
 
   arrayDOCS: GraphData[] = []
   subscribe!: Subscription
@@ -60,6 +63,65 @@ export class AppComponent implements OnInit {
       console.log(this.arrayDOCS)
     }
     )
+  }
+
+  getSearchQuery(word: string) {
+    const query = `    PREFIX dcterms: <http://purl.org/dc/terms/>
+    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    PREFIX vivo: <http://vivoweb.org/ontology/core#>
+    PREFIX bibo: <http://purl.org/ontology/bibo/>
+    PREFIX opus: <http://lsdis.cs.uga.edu/projects/semdis/opus#>
+    SELECT DISTINCT ?data
+    WHERE {
+        {
+           ?data dcterms:title ?o .
+        }
+        UNION
+		{
+           ?data bibo:doi ?o .
+        }
+    	UNION
+		{
+           ?data opus:year ?o .
+        }
+    	UNION
+        {
+           ?data dcterms:subject ?key_uri .
+           ?key_uri skos:prefLabel ?o.
+        }
+        UNION
+        {
+          ?data a bibo:AcademicArticle.
+          ?data vivo:relatedBy ?authorship.
+          ?authorship a vivo:Authorship.
+          ?authorship vivo:relates ?author_uri.
+          ?author_uri foaf:name ?o.
+        }
+
+        FILTER(CONTAINS(LCASE(STR(?o)), "${word.toLocaleLowerCase()}"))
+    }limit 10
+    offset ${10*this.page}
+    `
+    return query
+  }
+
+  search(){
+    console.log('Buscando...',this.searchControl.value)
+    const query = this.getSearchQuery(this.searchControl.value)
+    const fullUrl = this.endpointUrl2 + '?query=' + encodeURIComponent(query)
+    const headers = { 'Accept': 'application/sparql-results+json' }
+    console.log(query)
+    return this.http.get(fullUrl, { headers: headers }).subscribe((res:any)=>{
+      console.log(res)
+      const data = res.results.bindings as GraphData[]
+      this.arrayDOCS = data
+      if(this.arrayDOCS.length<10){
+        this.nextPage=-1
+      }else{
+        this.nextPage=this.page+1
+      }
+    })
   }
 
   getKeywords() {
@@ -140,7 +202,7 @@ export class AppComponent implements OnInit {
     if (this.subscribe) {
       this.subscribe.unsubscribe()
     }
-    this.subscribe = this.getSparql()
+    this.subscribe = this.search()
   }
   handlePrevPage(){
     this.nextPage=this.page
@@ -149,24 +211,32 @@ export class AppComponent implements OnInit {
     if (this.subscribe) {
       this.subscribe.unsubscribe()
     }
-    this.subscribe = this.getSparql()
+    this.subscribe = this.search()
   }
 
-  handleCountry(event: DataClean) {
+/*   handleCountry(event: DataClean) {
     //console.log('pais', event.uri)
     this.country = event
     if (this.subscribe) {
       this.subscribe.unsubscribe()
     }
     console.log(this.country)
-    this.subscribe = this.getSparql()
+    this.subscribe = this.search()
 
     //console.log(this.subscribe)
-  }
+  } */
   ngOnInit(): void {
     //this.getSparql()
     this.getKeywords()
     console.log(this.arrayKeywords)
-
+    this.searchControl.valueChanges.pipe(debounceTime(1000)).subscribe(() => {
+      this.page=0
+      this.prevPage=-1
+      this.nextPage=1
+      if(this.subscribe){
+        this.subscribe.unsubscribe()
+      }
+      this.subscribe=this.search();
+    });
   }
 }

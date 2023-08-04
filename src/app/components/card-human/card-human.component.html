@@ -13,22 +13,21 @@
     <div class="line" *ngIf="doi">
       <span>Autores:</span>
       <div *ngIf="authors">
-        <p *ngFor="let author of authors">{{author.data.value}}</p>
+        <p *ngFor="let author of authorsToShow">
+          {{author.data.value}}
+          <a [href]="'https://www.scopus.com/authid/detail.uri?authorId='+author.id.value" target="_blank">
+            <span nz-icon nzType="question-circle" nzTheme="outline"></span>
+          </a>
+        </p>
+        <p *ngIf="showAllAuthors">
+          <a href="#" (click)="toggleShowAll()">Ver menos</a>
+        </p>
+        <p *ngIf="!showAllAuthors && authors.length > 3">
+          <a href="#" (click)="toggleShowAll()">Ver más</a>
+        </p>
       </div>
     </div>
-    <div class="line" *ngIf="dateBirth"  >
-      <span> Nacio:</span>
-      <p>
-      {{ dateBirth.value | date : "fullDate" }}
 
-      </p>
-    </div>
-    <div class="line" *ngIf="!flagDeath && dateDeath">
-      <span>Fallece:</span>
-      <p>
-        {{ dateDeath.value | date : "fullDate" }}
-      </p>
-    </div>
   </div>
   <ng-template #profesionTemplate>
     <div *ngIf="flagTag">

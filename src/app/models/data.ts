@@ -38,9 +38,16 @@ export interface WikiData{
   results:{bindings:any[]}
 }
 
+
 export interface GraphData{
   data:{type:string,value:string}
 }
+
+export interface AuthorData{
+  data:{type:string,value:string},
+  id:{type:string,value:string}
+}
+
 export interface GraphData2{
   type:string,value:string
 }
