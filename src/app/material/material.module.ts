@@ -5,6 +5,9 @@ import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { TagCloudModule } from 'angular-tag-cloud-module';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzInputModule } from 'ng-zorro-antd/input';
 @NgModule({
   declarations: [],
   imports: [
@@ -13,15 +16,20 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
     NzCardModule,
     NzIconModule,
     NzAvatarModule,
-    NzTagModule
+    NzTagModule,
+    TagCloudModule,
+    NzSpinModule,
+    NzInputModule
   ],
   exports:[
     NzSelectModule,
     NzCardModule,
     NzIconModule,
     NzAvatarModule,
-    NzTagModule
-
+    NzTagModule,
+    TagCloudModule,
+    NzSpinModule,
+    NzInputModule
 
   ]
 })

@@ -1,28 +1,67 @@
-<div class="area" >
+<div class="area">
   <ul class="circles">
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
   </ul>
 </div>
 <main>
-  <h1>Personajes Ilustres WikiData</h1>
-  <span class="hook">A continuacion debe selecionar un pais para visualizar sus personajes ilustres asi como sus ocupaciones</span>
-<app-select-contry (selectCountry)="handleCountry($event)"></app-select-contry>
-<!-- <app-select-ocupation></app-select-ocupation> -->
-<div *ngIf="arrayData.length>0" class="container">
-<h2>Resultados:</h2>
-<div class="card-container">
-  <app-card-human class="card" *ngFor="let human of arrayData" [human]="human"></app-card-human>
-</div>
-</div>
+  <h1>Articulos academicos Scopus-Chile 2023</h1>
+  <div class="cloud">
+    <h2>Categorias mas populares</h2>
+    <angular-tag-cloud
+      *ngIf="flag"
+      [data]="data"
+      [width]="options.width"
+      [height]="options.height"
+      [overflow]="options.overflow"
+    >
+    </angular-tag-cloud>
+    <div class="load" *ngIf="!flag">
+      <nz-spin nzTip="Loading..." [nzSize]="'large'"></nz-spin>
+    </div>
+  </div>
+  <h2>Buscar por DOI, Titulo, Año, Autor o palabra clave</h2>
+  <!-- <span class="hook">A continuacion debe selecionar un pais para visualizar sus personajes ilustres asi como sus ocupaciones</span> -->
+  <!-- <app-select-contry
+        (selectCountry)="handleCountry($event)"
+      ></app-select-contry> -->
+  <!-- <app-select-ocupation></app-select-ocupation> -->
+  <div class="searchContainer">
+    <nz-input-group class="inputSearch" nzSize="large" nzSearch [nzSuffix] ="suffixIconSearch">
+      <input
+        type="text"
+        nz-input
+        placeholder="Ingrese el titulo, doi, author, año o palabra clave para buscar"
+        [formControl]="searchControl"
+      />
+    </nz-input-group>
+    <ng-template #suffixIconSearch>
+        <i nz-icon nzType="search"></i>
+    </ng-template>
+  </div>
+  <div *ngIf="arrayDOCS.length > 0" class="container">
+    <h3>Resultados:</h3>
+    <div class="card-container">
+      <div class="pagination">
+        <a *ngIf="prevPage > -1" (click)="handlePrevPage()">Anterior</a>
+        <a *ngIf="nextPage > 0" (click)="handleNextPage()">Siguiente</a>
+      </div>
+      <app-card-human
+        class="card"
+        *ngFor="let doc of arrayDOCS"
+        [data]="doc"
+      ></app-card-human>
+    </div>
+  </div>
+  <div *ngIf="arrayDOCS.length<1 && searchControl.value!=''" class="noContent">
+    <h2>No se han encontrado informacion relacionada</h2>
+  </div>
 </main>
-
-

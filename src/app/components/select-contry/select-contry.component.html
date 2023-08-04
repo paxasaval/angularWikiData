@@ -1,5 +1,5 @@
 <div class="container">
-  <span class="label">Selecione el pais:</span>
+  <span class="label">Selecione un tema:</span>
   <nz-select nzShowSearch nzAllowClear nzPlaceHolder="Select a person" [(ngModel)]="selectValue" (ngModelChange)="countryEmit($event)">
     <nz-option *ngFor="let country of arrayCountries" [nzLabel]="country.value" [nzValue]="country"></nz-option>
   </nz-select>

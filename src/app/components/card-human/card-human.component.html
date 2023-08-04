@@ -1,41 +1,50 @@
 <nz-card class="card" [nzActions]="[linkTemplate]">
-  <nz-card-meta
-    [nzTitle]="human.humanosLabel.value"
+  <nz-card-meta *ngIf="title"
+    [nzTitle]="title.data.value"
     [nzDescription]="profesionTemplate"
-    [nzAvatar]="avatarTemplate"
+
   >
   </nz-card-meta>
   <div class="content">
-    <div class="line" *ngIf="dateBirth"  >
-      <span> Nacio:</span>
-      <p>
-      {{ dateBirth.value | date : "fullDate" }}
+    <div class="line" *ngIf="doi">
+      <span>DOI:</span>
+      <p>{{doi.data.value}}</p>
+    </div>
+    <div class="line" *ngIf="doi">
+      <span>Autores:</span>
+      <div *ngIf="authors">
+        <p *ngFor="let author of authorsToShow">
+          {{author.data.value}}
+          <a [href]="'https://www.scopus.com/authid/detail.uri?authorId='+author.id.value" target="_blank">
+            <span nz-icon nzType="question-circle" nzTheme="outline"></span>
+          </a>
+        </p>
+        <p *ngIf="showAllAuthors">
+          <a href="#" (click)="toggleShowAll()">Ver menos</a>
+        </p>
+        <p *ngIf="!showAllAuthors && authors.length > 3">
+          <a href="#" (click)="toggleShowAll()">Ver más</a>
+        </p>
+      </div>
+    </div>
 
-      </p>
-    </div>
-    <div class="line" *ngIf="!flagDeath && dateDeath">
-      <span>Fallece:</span>
-      <p>
-        {{ dateDeath.value | date : "fullDate" }}
-      </p>
-    </div>
   </div>
   <ng-template #profesionTemplate>
-    <div>
+    <div *ngIf="flagTag">
+      Categorias:
       <nz-tag
         class="tag"
-        *ngFor="let profesion of arrayProfesion"
-        [nzColor]="'blue'"
+        *ngFor="let tag of tags"
+        [nzColor]="tag[1]==''?'red':'blue'"
       >
-        <a [href]="profesion.profesion.value" target="_blank">{{
-          profesion.profesionLabel.value
-        }}</a>
+        <a [href]="tag[1]" target="_blank">{{
+          tag[0]}}</a>
       </nz-tag>
     </div>
   </ng-template>
   <ng-template #linkTemplate>
-    <div class="action">
-      <a [href]="human.humanos.value" target="_blank">
+     <div class="action" *ngIf="link">
+      <a [href]="link.data.value" target="_blank">
         <span class="icon" nz-icon nzType="link" nzTheme="outline"></span>
       </a>
     </div>

@@ -19,7 +19,10 @@ export interface HumanData{
   humanos:Item,
   humanosLabel:ItemLabel,
 }
-
+export interface DataURI{
+  data:Item,
+  uri:Item,
+}
 export interface HumanDetailData{
   nameLabel?:ItemLabel,
   lastNameLabel?:ItemLabel,
@@ -33,4 +36,18 @@ export interface HumanCelebreData{
 export interface WikiData{
   head:{vars:string[]},
   results:{bindings:any[]}
+}
+
+
+export interface GraphData{
+  data:{type:string,value:string}
+}
+
+export interface AuthorData{
+  data:{type:string,value:string},
+  id:{type:string,value:string}
+}
+
+export interface GraphData2{
+  type:string,value:string
 }
